@@ -6,6 +6,7 @@ import Victim
 import ExtractGraph
 import inferencerules
 
+import converter
 
 #https://docs.python.org/2/tutorial/datastructures.html
 def list(list):
@@ -69,6 +70,7 @@ while flag:
     print('4 - Consultas') #algumas consultas sobre os dados
     print('5 - Aplicar Inferências')
     print('6 - Visualizar grafos') #algumas consultas sobre os dados
+    print('7 - Converter Dados') #Converter dados noutros formatos
     print('X - Terminar')
     n = input('Opção: ')
     if n.strip() == 'X':
@@ -196,3 +198,20 @@ while flag:
         vg.AccidentGraph(g,"http://crashmap.okfn.gr/data/accidents/RoadAccident/"+ str(accId))
         print ("O ficheiro " + str(accId) + ".svg foi gerado com sucesso")
 
+    if n.strip() == '7':
+        key = 'Z';
+        while key != 'X':
+            print('\n --=== Converter Ficheiro ===--')
+            print('1 - CSV --> NT')
+            print('2 - NT -->  RDF/N3')
+            print('3 - NT --> RDF/XML')
+            print('X - Menu anterior')
+            key = input('Opção')
+
+            if key == '1':
+
+                converter.ConvertCSVToTN ("Dados\\roadaccidents.csv","Dados\\roadaccidents.nt")
+            if key == '2':
+                converter.ConvertToRDFN3 ("Dados\\roadaccidents.nt", "Dados\\roadaccidents.n3")
+            if key == '3':
+                converter.ConvertToRDFXML ("Dados\\roadaccidents.nt","Dados\\roadaccidents.xml")
