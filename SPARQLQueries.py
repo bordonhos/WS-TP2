@@ -65,3 +65,27 @@ def listVictimAges (graph, namespace):
                     """, \
                           initNs={'pf':ns})
     return results
+
+def accidentData (graph, namespace, accidentID):
+    ns = Namespace(namespace)
+    results = graph.query("""
+                SELECT ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal (count (?idVitima) as ?nVitimas)
+                WHERE{
+                ?idAcidente pf:accidentID ?acidente.
+                ?idAcidente pf:hasAccVehicle ?idtipoVeiculo.
+                ?idtipoVeiculo pf:description ?descVeiculo.
+                ?idAcidente pf:hasAccCause ?idCausa.
+                ?idCausa pf:description ?descCausa.
+                ?idAcidente pf:happenedDuring ?idHora.
+                ?idHora pf:description ?descHora.
+                ?idAcidente pf:happenedDuring ?idHora.
+                ?idHora pf:description ?descHora.
+                ?idAcidente pf:happenedInRoadNet ?idLocal.
+                ?idLocal pf:description ?descLocal.
+                ?idAcidente pf:hasVictim ?idVitima.
+                    FILTER (?acidente = 112)
+                }
+                GROUP BY ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal
+                    """, \
+                          initNs={'pf':ns})
+    return results

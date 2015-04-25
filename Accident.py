@@ -1,27 +1,18 @@
 __author__ = '22208_65138'
+import SPARQLQueries
 
 class Accident():
     def Data (self, g, accidentId):
-        list = g.search ((accidentId, None, None))
-        if len (list) == 0:
-            return "Acidente não encontrado"
-        else:
-            numVeiculos = 0
-            numVitimas = 0
-            st = "[id: " + g.CleanUri (accidentId)
-            for tuple in list:
-                if tuple[1] == "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasAccVehicle":
-                    numVeiculos = numVeiculos + 1
-                elif tuple[1] == "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasVictim":
-                    numVitimas = numVitimas + 1
-                elif tuple[1] == "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasAccCause":
-                    st = st + " | Causa:" + g.CleanUri (tuple[2])
-                elif tuple[1] == "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#happenedDuring":
-                    st = st + " | Intervalo de tempo:" + g.CleanUri (tuple[2])
-                elif tuple[1] == "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#happenedInRoadNet":
-                    st = st + " | Zona:" + g.CleanUri (tuple[2])
+        results = SPARQLQueries.accidentData (g,"http://xmlns.com/gah/0.1/",accidentId)
+        r = results.bindings[0]
+        print ("Dados do acidente: " + accidentId)
+        print ("Veiculo:" + str(r["?descVeiculo"]))
+        print ("Causa:" + str(r["?descCausa"]))
+        print ("Intervalo horário:" + str(r["?descHora"]))
+        print ("Local:" + str(r["?descLocal"]))
+        print ("Numero de Vitimas:" + str(r["?nVitimas"]))
 
+#        if len (list) == 0:
+#            return "Acidente não encontrado"
 
-            st = st + " | Nº Veiculos: " + str(numVeiculos) + " | Nº Vitimas :" + str (numVitimas) + "]"
-            return st
 

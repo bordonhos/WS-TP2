@@ -133,7 +133,7 @@ while flag:
             if key == '1':
                 id = input ("Introduza o id do Acidente: ")
                 acc = Accident.Accident()
-                print (acc.Data(g,"http://crashmap.okfn.gr/data/accidents/RoadAccident/" + str(id)))
+                acc.Data(_graph,id)
             if key == '2':
                 id = input ("Introduza o id da Vitima: ")
                 acc = Victim.Victim()
