@@ -22,6 +22,22 @@ def ConvertToRDFXML (filename,destinationFileName):
     of.write(_graph.serialize(format="pretty-xml"))
     of.close()
 
+def ConvertToSQLLITE (filename,destinationFileName):
+
+    _graph = ConjunctiveGraph()
+    _graph.parse(filename, format="nt")
+    _graph.triples((None, None, None))
+
+
+    sql = ConjunctiveGraph('SQLite')
+    sql.open(destinationFileName, create=True)
+
+    for t in _graph.triples((None,None,None)):
+        sql.add(t)
+
+    sql.commit()
+    sql.close()
+
 def ConvertCSVToTN (filename, destinationFileName):
     g = grafo.grafo()
     g.load(filename)  #--> Working

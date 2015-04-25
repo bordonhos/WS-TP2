@@ -5,8 +5,9 @@ import Accident
 import Victim
 import ExtractGraph
 import inferencerules
-
+import rdflib
 import converter
+from rdflib import ConjunctiveGraph
 
 #https://docs.python.org/2/tutorial/datastructures.html
 def list(list):
@@ -60,7 +61,7 @@ def listaRegistos (list, tipo, campo):
 
 
 flag = True
-g = grafo.grafo()
+g = converter
 
 while flag:
     print('\n --=== MENU ===--')
@@ -69,15 +70,15 @@ while flag:
     print('3 - Procurar Acidente/Vitima') # pesquisar dados de determinado acidente
     print('4 - Consultas') #algumas consultas sobre os dados
     print('5 - Aplicar Inferências')
-    print('6 - Visualizar grafos') #algumas consultas sobre os dados
-    print('7 - Converter Dados') #Converter dados noutros formatos
+    print('6 - Converter Dados') #Converter dados noutros formatos
     print('X - Terminar')
     n = input('Opção: ')
     if n.strip() == 'X':
         flag = False
     if n.strip() == '1':
-        g.load("roadaccidents.csv")  #--> Working
+        g.parse("Dados\\roadaccidents.nt")  #--> Working
 
+        q.query ()
     if n.strip() == '2':
         key = 'Z';
         while key != 'X':
@@ -193,25 +194,21 @@ while flag:
                 g.applyinference(underageRule)
 
     if n.strip() == '6':
-        accId = input ("Introduza o id do acidente: ")
-        vg = ExtractGraph.ExtractGraph ()
-        vg.AccidentGraph(g,"http://crashmap.okfn.gr/data/accidents/RoadAccident/"+ str(accId))
-        print ("O ficheiro " + str(accId) + ".svg foi gerado com sucesso")
-
-    if n.strip() == '7':
         key = 'Z';
         while key != 'X':
             print('\n --=== Converter Ficheiro ===--')
-            print('1 - CSV --> NT')
-            print('2 - NT -->  RDF/N3')
-            print('3 - NT --> RDF/XML')
+            print('1 - CSV --> RDF/NT')
+            print('2 - RDF/NT -->  RDF/N3')
+            print('3 - RDF/NT --> RDF/XML')
+            print('4 - RDF/NT --> SQLITE')
             print('X - Menu anterior')
             key = input('Opção')
 
             if key == '1':
-
                 converter.ConvertCSVToTN ("Dados\\roadaccidents.csv","Dados\\roadaccidents.nt")
             if key == '2':
                 converter.ConvertToRDFN3 ("Dados\\roadaccidents.nt", "Dados\\roadaccidents.n3")
             if key == '3':
                 converter.ConvertToRDFXML ("Dados\\roadaccidents.nt","Dados\\roadaccidents.xml")
+            if key == '4':
+                converter.ConvertToSQLLITE ("Dados\\roadaccidents.nt","Dados\\roadaccidents.db")
