@@ -7,7 +7,10 @@ import ExtractGraph
 import inferencerules
 import rdflib
 import converter
+import SPARQLQueries
+
 from rdflib import ConjunctiveGraph
+
 
 #https://docs.python.org/2/tutorial/datastructures.html
 def list(list):
@@ -61,7 +64,7 @@ def listaRegistos (list, tipo, campo):
 
 
 flag = True
-g = converter
+_graph = ConjunctiveGraph()
 
 while flag:
     print('\n --=== MENU ===--')
@@ -76,9 +79,7 @@ while flag:
     if n.strip() == 'X':
         flag = False
     if n.strip() == '1':
-        g.parse("Dados\\roadaccidents.nt")  #--> Working
-
-        q.query ()
+        _graph.parse("Dados\\roadaccidents.nt", format="nt")
     if n.strip() == '2':
         key = 'Z';
         while key != 'X':
@@ -92,7 +93,7 @@ while flag:
             print('X - Menu anterior')
             key = input('Opção')
             if key == '1':
-                list = g.search((None, "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#accidentID", None));
+                SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
                 print ('Existiram ' + str(len (list)) + ' acidentes');
             if key == '2':
                 list = g.search((None, "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#victimID", None));
