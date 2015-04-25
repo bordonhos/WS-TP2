@@ -13,18 +13,55 @@ def predicateCount (graph, namespace, predicate):
               initNs={'pf':ns})
     return results
 
-def predicateCount1 (graph, namespace, predicate):
+def victimCount (graph, namespace, predicate):
     ns = Namespace(namespace)
     results = graph.query("""
-                SELECT (COUNT(?p) as ?pCount)
+                SELECT (COUNT(pf:victimID) as ?pCount)
                 WHERE{
-                    ?s ?p  ?o.
-                }GROUP BY ?p
-                """)
-    #, \
-    #          initNs={'pf':ns})
-    print (results)
+                    ?s pf:victimID ?o .
+                }
+                """, \
+                          initNs={'pf':ns})
+    return results
 
+def listAccidentTypes (graph, namespace):
+    ns = Namespace(namespace)
+    results = graph.query("""
+                    SELECT ?DescricaoTipoAcidente ( Count (*) as ?count)
+                    WHERE{
+                    ?s pf:hasAccType ?TipoAcidente .
+                    ?TipoAcidente pf:description ?DescricaoTipoAcidente .
+                    }
+                    GROUP BY ?DescricaoTipoAcidente
+                    ORDER BY DESC (?count)
+                    """, \
+                          initNs={'pf':ns})
+    return results
 
+def listAccidentCauses (graph, namespace):
+    ns = Namespace(namespace)
+    results = graph.query("""
+                    SELECT ?DescricaoCausaAcidente ( Count (*) as ?count)
+                    WHERE{
+                    ?s pf:hasAccCause ?CausaAcidente .
+                    ?CausaAcidente pf:description ?DescricaoCausaAcidente .
+                    }
+                    GROUP BY ?DescricaoCausaAcidente
+                    ORDER BY DESC (?count)
+                    """, \
+                          initNs={'pf':ns})
+    return results
 
-
+def listVictimAges (graph, namespace):
+    ns = Namespace(namespace)
+    results = graph.query("""
+                    SELECT ?FaixaEtaria  ( Count (*) as ?count)
+                    WHERE{
+                    ?s pf:hasVictimAge ?idFaixa .
+                    ?idFaixa pf:description ?FaixaEtaria  .
+                    }
+                    GROUP BY ?FaixaEtaria
+                    ORDER BY DESC (?count)
+                    """, \
+                          initNs={'pf':ns})
+    return results

@@ -86,32 +86,42 @@ while flag:
             print('\n --=== Listar ===--')
             print('1 - Número Total de Acidentes')
             print('2 - Número de Vitimas')
-            print('3 - Numero de Acidentes com automóveis')
+            print('3 - Tipos de Acidentes')
             print('4 - Causas de Acidentes')
             print('5 - Faixas etárias')
-            print('6 - Zonas de Acidentes')
             print('X - Menu anterior')
             key = input('Opção')
             if key == '1':
                 results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
                 for r in results:
-                    print (r[0])
-               # print ('Existiram ' + str(len (list)) + ' acidentes');
+                    acc = r[0]
+                print ('Existiram ' + str(acc) + ' acidentes');
             if key == '2':
-                list = g.search((None, "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#victimID", None));
-                print ('Existiram ' + str(len (list)) + ' Vitimas');
+                results = SPARQLQueries.victimCount (_graph,"http://xmlns.com/gah/0.1/","victimID")
+                for r in results:
+                    acc = r[0]
+                print ('Existiram ' + str(acc) + ' Vitimas');
             if key == '3':
-                list = g.search((None, "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#inVehicle", "http://crashmap.okfn.gr/data/accidents/AccVehicle/Car"));
-                print ('Existiam ' + str(len (list)) + ' acidentes com automóveis');
+                results = SPARQLQueries.listAccidentTypes (_graph,"http://xmlns.com/gah/0.1/")
+                print ("Os tipos de acidentes que existem são:")
+                print ("Tipo de acidente  --> Número de acidentes")
+                print ("-------------------------------------------")
+                for r in results:
+                    print (r[0] +" --> " + r[1])
             if key == '4':
-                list = g.search ((None,"http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasAccCause", None))
-                listDistinctValues (list)
+                results = SPARQLQueries.listAccidentCauses (_graph,"http://xmlns.com/gah/0.1/")
+                print ("As causas de acidentes existentes são:")
+                print ("Causas de acidente  --> Número de acidentes")
+                print ("-------------------------------------------")
+
+                for r in results:
+                    print (r[0] +" --> " + r[1])
             if key == '5':
-                list = g.search ((None,"http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasVictimAge", None))
-                listDistinctValues (list)
-            if key == '6':
-                list = g.search ((None,"http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#happenedInRoadNet", None))
-                listDistinctValues (list)
+                results = SPARQLQueries.listVictimAges (_graph,"http://xmlns.com/gah/0.1/")
+                print ("Faixa etária das vitimas --> Número de Vitimas")
+                print ("-------------------------------------------")
+                for r in results:
+                    print (r[0] +" --> " + r[1])
     if n.strip() == '3':
         key = 'Z';
         while key != 'X':
