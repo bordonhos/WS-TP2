@@ -5,15 +5,13 @@ from rdflib.graph import ConjunctiveGraph, Namespace
 def predicateCount (graph, namespace, predicate):
     ns = Namespace(namespace)
     results = graph.query("""
-                PREFIX pf: <http://xmlns.com/gah/0.1/>
-                SELECT pf:accidentID (COUNT(?p) as ?pCount)
+                SELECT (COUNT(pf:accidentID) as ?pCount)
                 WHERE{
-                    ?s pf:accidentID  ?o.
-                }GROUP BY ?p
-                """)
-    #, \
-    #          initNs={'pf':ns})
-    print (results)
+                    ?s pf:accidentID ?o .
+                }
+                """, \
+              initNs={'pf':ns})
+    return results
 
 def predicateCount1 (graph, namespace, predicate):
     ns = Namespace(namespace)

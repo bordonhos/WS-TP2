@@ -93,8 +93,10 @@ while flag:
             print('X - Menu anterior')
             key = input('Opção')
             if key == '1':
-                SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
-                print ('Existiram ' + str(len (list)) + ' acidentes');
+                results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
+                for r in results:
+                    print (r[0])
+               # print ('Existiram ' + str(len (list)) + ' acidentes');
             if key == '2':
                 list = g.search((None, "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#victimID", None));
                 print ('Existiram ' + str(len (list)) + ' Vitimas');
