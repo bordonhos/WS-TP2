@@ -4,88 +4,86 @@ from rdflib.graph import ConjunctiveGraph, Namespace
 
 def predicateCount (graph, namespace, predicate):
     ns = Namespace(namespace)
-    results = graph.query("""
-                SELECT (COUNT(pf:accidentID) as ?pCount)
-                WHERE{
-                    ?s pf:accidentID ?o .
-                }
-                """, \
-              initNs={'pf':ns})
+    qry = "SELECT (COUNT(pf:" + predicate + ") as ?pCount) " \
+         " WHERE {" \
+         "?s pf:" + predicate + " ?o ." \
+         "    } "
+
+    results = graph.query( qry, initNs={'pf':ns})
     return results
 
-def victimCount (graph, namespace, predicate):
+def listTypes (graph, namespace, type):
     ns = Namespace(namespace)
-    results = graph.query("""
-                SELECT (COUNT(pf:victimID) as ?pCount)
-                WHERE{
-                    ?s pf:victimID ?o .
-                }
-                """, \
-                          initNs={'pf':ns})
+    qry = "SELECT ?Descricao ( Count (*) as ?count) " \
+            " WHERE {" \
+            " ?s pf:" + type + " ?Tipo . " \
+            " ?Tipo pf:description ?Descricao ." \
+            "}" \
+            "GROUP BY ?Descricao " \
+            "ORDER BY DESC (?count)"
+    results = graph.query( qry, initNs={'pf':ns})
     return results
 
-def listAccidentTypes (graph, namespace):
-    ns = Namespace(namespace)
-    results = graph.query("""
-                    SELECT ?DescricaoTipoAcidente ( Count (*) as ?count)
-                    WHERE{
-                    ?s pf:hasAccType ?TipoAcidente .
-                    ?TipoAcidente pf:description ?DescricaoTipoAcidente .
-                    }
-                    GROUP BY ?DescricaoTipoAcidente
-                    ORDER BY DESC (?count)
-                    """, \
-                          initNs={'pf':ns})
-    return results
-
-def listAccidentCauses (graph, namespace):
-    ns = Namespace(namespace)
-    results = graph.query("""
-                    SELECT ?DescricaoCausaAcidente ( Count (*) as ?count)
-                    WHERE{
-                    ?s pf:hasAccCause ?CausaAcidente .
-                    ?CausaAcidente pf:description ?DescricaoCausaAcidente .
-                    }
-                    GROUP BY ?DescricaoCausaAcidente
-                    ORDER BY DESC (?count)
-                    """, \
-                          initNs={'pf':ns})
-    return results
-
-def listVictimAges (graph, namespace):
-    ns = Namespace(namespace)
-    results = graph.query("""
-                    SELECT ?FaixaEtaria  ( Count (*) as ?count)
-                    WHERE{
-                    ?s pf:hasVictimAge ?idFaixa .
-                    ?idFaixa pf:description ?FaixaEtaria  .
-                    }
-                    GROUP BY ?FaixaEtaria
-                    ORDER BY DESC (?count)
-                    """, \
-                          initNs={'pf':ns})
-    return results
 
 def accidentData (graph, namespace, accidentID):
     ns = Namespace(namespace)
-    results = graph.query("""
-                SELECT ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal (count (?idVitima) as ?nVitimas)
-                WHERE{
-                ?idAcidente pf:accidentID ?acidente.
-                ?idAcidente pf:hasAccVehicle ?idtipoVeiculo.
-                ?idtipoVeiculo pf:description ?descVeiculo.
-                ?idAcidente pf:hasAccCause ?idCausa.
-                ?idCausa pf:description ?descCausa.
-                ?idAcidente pf:happenedDuring ?idHora.
-                ?idHora pf:description ?descHora.
-                ?idAcidente pf:happenedDuring ?idHora.
-                ?idHora pf:description ?descHora.
-                ?idAcidente pf:happenedInRoadNet ?idLocal.
-                ?idLocal pf:description ?descLocal.
-                ?idAcidente pf:hasVictim ?idVitima.
-                    FILTER (?acidente = 112)
-                }
-                GROUP BY ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal
-                    """, \
-                          initNs={'pf':ns})
+    qry = 'SELECT ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal (count (?idVitima) as ?nVitimas) ' \
+    'WHERE{ ' \
+    '?idAcidente pf:accidentID "' + accidentID + '"^^<http://www.w3.org/2001/XMLSchema#int>. ' \
+    '?idAcidente pf:hasAccVehicle ?idtipoVeiculo. ' \
+    '?idtipoVeiculo pf:description ?descVeiculo. ' \
+    '?idAcidente pf:hasAccCause ?idCausa. ' \
+    '?idCausa pf:description ?descCausa. ' \
+    '?idAcidente pf:happenedDuring ?idHora. ' \
+    '?idHora pf:description ?descHora. ' \
+    '?idAcidente pf:happenedDuring ?idHora. ' \
+    '?idHora pf:description ?descHora. ' \
+    '?idAcidente pf:happenedInRoadNet ?idLocal. ' \
+    '?idLocal pf:description ?descLocal. ' \
+    '?idAcidente pf:hasVictim ?idVitima. ' \
+    '}' \
+    'GROUP BY ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal'
+    results = graph.query( qry, initNs={'pf':ns})
+    return results
+
+def  victimData (graph, namespace, victimID):
+    ns = Namespace(namespace)
+    qry = 'SELECT ?idVitima ?descIdade ?descVeiculo ?descVitima ?idAcidente ?objAcidente ' \
+        'WHERE{ ' \
+        '?idVitima pf:victimID "' + victimID + '"^^<http://www.w3.org/2001/XMLSchema#int>. ' \
+        '?idVitima pf:hasVictimAge ?idtipoIdade. ' \
+        '?idtipoIdade pf:description ?descIdade. ' \
+        '?idVitima pf:inVehicle ?idtipoveiculo. ' \
+        '?idtipoveiculo pf:description ?descVeiculo. ' \
+        '?idVitima pf:hasVictimType ?idtipoVitima. ' \
+        '?idtipoVitima pf:description ?descVitima. ' \
+        '?idVitima pf:involvedIn ?idAcidente. ' \
+        '?idAcidente pf:accidentID ?objAcidente.'\
+        '}'
+    results = graph.query( qry, initNs={'pf':ns})
+    return results
+
+def accidentVictimAge (graph, namespace, accidentID):
+    ns = Namespace(namespace)
+    qry = 'SELECT  ?vitima ?descIdade ' \
+    'WHERE{ ' \
+    '?idAcidente pf:accidentID "' + accidentID + '"^^<http://www.w3.org/2001/XMLSchema#int>. ' \
+    '?idAcidente pf:hasVictim ?idVitima. ' \
+    '?idVitima pf:victimID ?vitima. ' \
+    '?idVitima pf:hasVictimAge ?idtipoIdade. ' \
+    '?idtipoIdade pf:description ?descIdade. ' \
+    '}'
+
+    results = graph.query( qry, initNs={'pf':ns})
+    return results
+
+def accidentsByType (graph, namespace, predicate, value ):
+    ns = Namespace(namespace)
+    qry = 'SELECT  ?acidente ' \
+        'WHERE{ ' \
+        '?id pf:description "' + value +'". ' \
+        '?idAcidente pf:' +predicate + ' ?id . ' \
+        '?idAcidente pf:accidentID ?acidente . ' \
+        '}'
+    results = graph.query( qry, initNs={'pf':ns})
     return results
