@@ -56,15 +56,21 @@ def listaRegistos (list, tipo, campo):
     elif tipo == 'vitimas':
         dados = Victim.Victim()
     key="X"
-    while key != 'S' and key != 'N':
+    while key.upper() != 'S' and key.upper() != 'N':
         key = input ("Deseja listar " + str(tipo) + " (S/N)?")
-        if key == 'S':
+        if key.upper() == 'S':
             for c in list:
                 print (dados.Data (g, c[campo]))
 
 
 flag = True
 _graph = ConjunctiveGraph()
+
+def isFileLoaded():
+    if len(_graph) == 0:
+        print ('O gráfico ainda não foi carregado')
+        return False
+    return True
 
 while flag:
     print('\n --=== MENU ===--')
@@ -73,58 +79,58 @@ while flag:
     print('3 - Procurar Acidente/Vitima') # pesquisar dados de determinado acidente
     print('4 - Consultas') #algumas consultas sobre os dados
     print('5 - Aplicar Inferências')
-    print('6 - Converter Dados') #Converter dados noutros formatos
     print('X - Terminar')
     n = input('Opção: ')
-    if n.strip() == 'X':
+    if n.strip().upper() == 'X':
         flag = False
     if n.strip() == '1':
         _graph.parse("Dados\\roadaccidents.nt", format="nt")
-    if n.strip() == '2':
-        key = 'Z';
-        while key != 'X':
-            print('\n --=== Listar ===--')
-            print('1 - Número Total de Acidentes')
-            print('2 - Número de Vitimas')
-            print('3 - Tipos de Acidentes')
-            print('4 - Causas de Acidentes')
-            print('5 - Faixas etárias')
-            print('X - Menu anterior')
-            key = input('Opção')
-            if key == '1':
-                results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
-                for r in results:
-                    acc = r[0]
-                print ('Existiram ' + str(acc) + ' acidentes');
-            if key == '2':
-                results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","victimID")
-                for r in results:
-                    acc = r[0]
-                print ('Existiram ' + str(acc) + ' Vitimas');
-            if key == '3':
-                results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasAccType")
-                print ("Os tipos de acidentes que existem são:")
-                print ("Tipo de acidente  --> Número de acidentes")
-                print ("-------------------------------------------")
-                for r in results:
-                    print (r[0] +" --> " + r[1])
-            if key == '4':
-                results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasAccCause")
-                print ("As causas de acidentes existentes são:")
-                print ("Causas de acidente  --> Número de acidentes")
-                print ("-------------------------------------------")
+    if n.strip() == '2' and isFileLoaded():
+        if(isFileLoaded()):
+            key = 'Z';
+            while key.upper() != 'X':
+                print('\n --=== Listar ===--')
+                print('1 - Número Total de Acidentes')
+                print('2 - Número de Vitimas')
+                print('3 - Tipos de Acidentes')
+                print('4 - Causas de Acidentes')
+                print('5 - Faixas etárias')
+                print('X - Menu anterior')
+                key = input('Opção')
+                if key == '1':
+                    results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
+                    for r in results:
+                        acc = r[0]
+                    print ('Existiram ' + str(acc) + ' acidentes');
+                if key == '2':
+                    results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","victimID")
+                    for r in results:
+                        acc = r[0]
+                    print ('Existiram ' + str(acc) + ' Vitimas');
+                if key == '3':
+                    results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasAccType")
+                    print ("Os tipos de acidentes que existem são:")
+                    print ("Tipo de acidente  --> Número de acidentes")
+                    print ("-------------------------------------------")
+                    for r in results:
+                        print (r[0] +" --> " + r[1])
+                if key == '4':
+                    results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasAccCause")
+                    print ("As causas de acidentes existentes são:")
+                    print ("Causas de acidente  --> Número de acidentes")
+                    print ("-------------------------------------------")
 
-                for r in results:
-                    print (r[0] +" --> " + r[1])
-            if key == '5':
-                results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasVictimAge")
-                print ("Faixa etária das vitimas --> Número de Vitimas")
-                print ("-------------------------------------------")
-                for r in results:
-                    print (r[0] +" --> " + r[1])
-    if n.strip() == '3':
+                    for r in results:
+                        print (r[0] +" --> " + r[1])
+                if key == '5':
+                    results = SPARQLQueries.listTypes (_graph,"http://xmlns.com/gah/0.1/", "hasVictimAge")
+                    print ("Faixa etária das vitimas --> Número de Vitimas")
+                    print ("-------------------------------------------")
+                    for r in results:
+                        print (r[0] +" --> " + r[1])
+    if n.strip() == '3' and isFileLoaded():
         key = 'Z';
-        while key != 'X':
+        while key.upper() != 'X':
             print('\n --=== Pesquisar ===--')
             print('1 - Acidente')
             print('2 - Vitima')
@@ -138,9 +144,9 @@ while flag:
                 id = input ("Introduza o id da Vitima: ")
                 acc = Victim.Victim()
                 acc.Data(_graph,id)
-    if n.strip() == '4':
+    if n.strip() == '4' and isFileLoaded():
         key = 'Z';
-        while key != 'X':
+        while key.upper() != 'X':
             print('\n --=== Consultar ===--')
             print('1 - Idade das vitimas de um acidente')
             print('2 - Acidentes por Causa')
@@ -169,7 +175,7 @@ while flag:
                 acc = input ("Introduza o número correspondente à Causa pretendida:")
                 results = SPARQLQueries.accidentsByType(_graph,"http://xmlns.com/gah/0.1/","hasAccCause", results.bindings[int(acc)-1]["?Descricao"])
                 print ("Existem " + str(len(results.bindings)) + " acidentes")
-                if input ("Deseja listar os acidentes (S/N)?") == "S":
+                if input ("Deseja listar os acidentes (S/N)?").upper() == "S":
                     acc = Accident.Accident()
                     for r in results:
                         acc.Data(_graph,r[0])
@@ -184,7 +190,7 @@ while flag:
                 vit = input ("Introduza o número correspondente ao veiculo pretendido:")
                 results = SPARQLQueries.accidentsByType(_graph,"http://xmlns.com/gah/0.1/","hasAccVehicle", results.bindings[int(vit)-1]["?Descricao"])
                 print ("Existem " + str(len(results.bindings)) + " vitimas")
-                if input ("Deseja listar as vitimas (S/N)?") == "S":
+                if input ("Deseja listar as vitimas (S/N)?").upper() == "S":
                     vit = Victim.Victim()
                     for r in results:
                         vit.Data(_graph,r[0])
@@ -195,11 +201,11 @@ while flag:
                 ])
                 print ("Foram encontrados "  + str (len(list)) + " vitimas.")
                 listaRegistos (list,"vitimas", "subacidente")
-    if n.strip() == '5':
+    if n.strip() == '5' and isFileLoaded():
         dayTimeRule = inferencerules.DayTime()
         underageRule = inferencerules.UnderagePassenger()
         key = 'Z';
-        while key != 'X':
+        while key.upper() != 'X':
             print('\n --=== Aplicar Inferências ===--')
             print('1 - Altura do dia em que ocorreu o acidente')
             print('2 - Vitimas menores de idade (passageiros)')
@@ -231,23 +237,3 @@ while flag:
                         triple = (rdflib.URIRef(s), ns["UnderagePassenger"], Literal(o))
                         _graph.add(triple)
                 print(str(len(bindings)) + ' inferências aplicadas!')
-
-    if n.strip() == '6':
-        key = 'Z';
-        while key != 'X':
-            print('\n --=== Converter Ficheiro ===--')
-            print('1 - CSV --> RDF/NT')
-            print('2 - RDF/NT -->  RDF/N3')
-            print('3 - RDF/NT --> RDF/XML')
-            print('4 - RDF/NT --> SQLITE')
-            print('X - Menu anterior')
-            key = input('Opção')
-
-            if key == '1':
-                converter.ConvertCSVToTN ("Dados\\roadaccidents.csv","Dados\\roadaccidents.nt")
-            if key == '2':
-                converter.ConvertToRDFN3 ("Dados\\roadaccidents.nt", "Dados\\roadaccidents.n3")
-            if key == '3':
-                converter.ConvertToRDFXML ("Dados\\roadaccidents.nt","Dados\\roadaccidents.xml")
-            if key == '4':
-                converter.ConvertToSQLLITE ("Dados\\roadaccidents.nt","Dados\\roadaccidents.db")
