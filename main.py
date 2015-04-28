@@ -9,7 +9,7 @@ import rdflib
 import converter
 import SPARQLQueries
 
-from rdflib import ConjunctiveGraph
+from rdflib import ConjunctiveGraph, Namespace, Literal
 
 
 #https://docs.python.org/2/tutorial/datastructures.html
@@ -206,9 +206,31 @@ while flag:
             print('X - Menu anterior')
             key = input('Opção')
             if key == '1':
-                g.applyinference(dayTimeRule)
+                rule = dayTimeRule
+                queries = rule.getqueries()
+                #bindings = []
+                bindings = SPARQLQueries.happenedDuring(_graph,"http://xmlns.com/gah/0.1/")
+                for s,o in bindings:
+                    new_triples = rule.maketriples(s,o)
+                    for s, p, o in new_triples:
+                        ns = Namespace("http://xmlns.com/gah/0.1/")
+                        triple = (s, ns["DayTime"], Literal(o))
+                        _graph.add(triple)
+                print(str(len(bindings)) + ' inferências aplicadas!')
+
+                #_graph.add(dayTimeRule)
             elif key == '2':
-                g.applyinference(underageRule)
+                rule = underageRule
+                queries = rule.getqueries()
+                #bindings = []
+                bindings = SPARQLQueries.hasVictimUnderage(_graph,"http://xmlns.com/gah/0.1/")
+                for s in bindings:
+                    new_triples = rule.maketriples(s)
+                    for s, p, o in new_triples:
+                        ns = Namespace("http://xmlns.com/gah/0.1/")
+                        triple = (rdflib.URIRef(s), ns["UnderagePassenger"], Literal(o))
+                        _graph.add(triple)
+                print(str(len(bindings)) + ' inferências aplicadas!')
 
     if n.strip() == '6':
         key = 'Z';

@@ -1,6 +1,6 @@
 __author__ = '22208_65138'
 
-from rdflib.graph import ConjunctiveGraph, Namespace
+from rdflib.graph import ConjunctiveGraph, Namespace, rdflib
 
 def predicateCount (graph, namespace, predicate):
     ns = Namespace(namespace)
@@ -79,6 +79,7 @@ def accidentVictimAge (graph, namespace, accidentID):
 
 def accidentsByType (graph, namespace, predicate, value ):
     ns = Namespace(namespace)
+
     qry = 'SELECT  ?acidente ' \
         'WHERE{ ' \
         '?id pf:description "' + value +'". ' \
@@ -86,4 +87,51 @@ def accidentsByType (graph, namespace, predicate, value ):
         '?idAcidente pf:accidentID ?acidente . ' \
         '}'
     results = graph.query( qry, initNs={'pf':ns})
+
+    results = graph.query("""
+                SELECT ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal (count (?idVitima) as ?nVitimas)
+                WHERE{
+                ?idAcidente pf:accidentID ?acidente.
+                ?idAcidente pf:hasAccVehicle ?idtipoVeiculo.
+                ?idtipoVeiculo pf:description ?descVeiculo.
+                ?idAcidente pf:hasAccCause ?idCausa.
+                ?idCausa pf:description ?descCausa.
+                ?idAcidente pf:happenedDuring ?idHora.
+                ?idHora pf:description ?descHora.
+                ?idAcidente pf:happenedDuring ?idHora.
+                ?idHora pf:description ?descHora.
+                ?idAcidente pf:happenedInRoadNet ?idLocal.
+                ?idLocal pf:description ?descLocal.
+                ?idAcidente pf:hasVictim ?idVitima.
+                    FILTER (?acidente = 112)
+                }
+                GROUP BY ?idAcidente ?descVeiculo ?descCausa ?descHora ?descLocal
+                    """, \
+                          initNs={'pf':ns})
+    return results
+
+def happenedDuring(graph, namespace):
+    ns = Namespace(namespace)
+    results = graph.query("""
+                SELECT ?roadaccident ?happenedDuring
+                WHERE{
+                ?roadaccident pf:happenedDuring ?happenedDuring.
+                } 
+                    """, \
+                          initNs={'pf':ns})
+    return results
+
+def hasVictimUnderage(graph, namespace):
+    ns = Namespace(namespace)
+    vt = rdflib.URIRef("http://ws_22208_65138.com/VictimType/Passenger")
+    va = rdflib.URIRef("http://ws_22208_65138.com/VictimAge/Y0-17")
+
+    results = graph.query("""
+                SELECT ?accidentvictim
+                WHERE{
+                ?accidentvictim pf:hasVictimType <http://ws_22208_65138.com/VictimType/Passenger> .
+                ?accidentvictim pf:hasVictimAge <http://ws_22208_65138.com/VictimAge/Y0-17> .
+                }
+                    """, initNs={'pf': ns}) # , 'victimType': vt, 'victimAge': va    "http://ws_22208_65138.com/VictimAge/Y0-17"
+
     return results
