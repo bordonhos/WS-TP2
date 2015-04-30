@@ -193,14 +193,17 @@ while flag:
                 if input ("Deseja listar as vitimas (S/N)?").upper() == "S":
                     vit = Victim.Victim()
                     for r in results:
-                        vit.Data(_graph,r[0])
+                        victID = r[0]
+                        vit.Data(_graph,victID)
 
             if key == '4':
-                list = g.query ([( "?subacidente", "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasVictimAge","http://crashmap.okfn.gr/data/accidents/VictimAge/Y0-17"),
-                                 ("?subacidente", "http://crashmap.okfn.gr/vocabs/roadAccidentsVocab#hasVictimType", "http://crashmap.okfn.gr/data/accidents/VictimType/Driver")
-                ])
-                print ("Foram encontrados "  + str (len(list)) + " vitimas.")
-                listaRegistos (list,"vitimas", "subacidente")
+                results = SPARQLQueries.underageDriver(_graph,"http://xmlns.com/gah/0.1/")
+                print ("Existem " + str(len(results.bindings)) + " condutores menores de idade")
+                if input ("Deseja listar as vitimas (S/N)?").upper() == "S":
+                    vit = Victim.Victim()
+                    for r in results:
+                        victID = r[0]
+                        vit.Data(_graph,r[0])
     if n.strip() == '5' and isFileLoaded():
         dayTimeRule = inferencerules.DayTime()
         underageRule = inferencerules.UnderagePassenger()
@@ -212,28 +215,20 @@ while flag:
             print('X - Menu anterior')
             key = input('Opção')
             if key == '1':
-                rule = dayTimeRule
-                queries = rule.getqueries()
-                #bindings = []
-                bindings = SPARQLQueries.happenedDuring(_graph,"http://xmlns.com/gah/0.1/")
-                for s,o in bindings:
-                    new_triples = rule.maketriples(s,o)
-                    for s, p, o in new_triples:
-                        ns = Namespace("http://xmlns.com/gah/0.1/")
-                        triple = (s, ns["DayTime"], Literal(o))
-                        _graph.add(triple)
-                print(str(len(bindings)) + ' inferências aplicadas!')
+                SPARQLQueries.addDayTime(_graph,"http://xmlns.com/gah/0.1/")
+                count = SPARQLQueries.DayTimeCount(_graph)
+                for c in count:
+                    acc = c[0]
+                print (str(acc) + ' inferências aplicadas!')
 
-                #_graph.add(dayTimeRule)
             elif key == '2':
-                rule = underageRule
-                queries = rule.getqueries()
-                #bindings = []
-                bindings = SPARQLQueries.hasVictimUnderage(_graph,"http://xmlns.com/gah/0.1/")
-                for s in bindings:
-                    new_triples = rule.maketriples(s)
-                    for s, p, o in new_triples:
-                        ns = Namespace("http://xmlns.com/gah/0.1/")
-                        triple = (rdflib.URIRef(s), ns["UnderagePassenger"], Literal(o))
-                        _graph.add(triple)
-                print(str(len(bindings)) + ' inferências aplicadas!')
+                result = SPARQLQueries.addVictimUnderage(_graph,"http://xmlns.com/gah/0.1/")
+                for triple in result:
+                    _graph.add(triple)
+                count = SPARQLQueries.UnderagePassengerCount(_graph,"http://xmlns.com/gah/0.1/","UnderagePassanger")
+                for c in count:
+                    acc = c[0]
+                print (str(acc) + ' inferências aplicadas!')
+
+
+

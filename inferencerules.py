@@ -12,9 +12,7 @@ class InferenceRule:
 
 
 class DayTime(InferenceRule):
-    def getqueries(self):
-        happenedDuring = [('?roadaccident', 'http://xmlns.com/gah/0.1/happenedDuring', '?happenedDuring')]
-        return [happenedDuring]
+
 
     def maketriples(self, happenedDuring, roadaccident):
 
@@ -32,10 +30,6 @@ class DayTime(InferenceRule):
 
 
 class UnderagePassenger(InferenceRule):
-    def getqueries(self):
-        hasVictimType = [('?accidentvictim','http://xmlns.com/gah/0.1/hasVictimType','http://ws_22208_65138.com/VictimType/Passenger')]
-        hasVictimAge = [('?accidentvictim', 'http://xmlns.com/gah/0.1/hasVictimAge', 'http://ws_22208_65138.com/VictimAge/Y0-17')]
-        return [hasVictimType,hasVictimAge]
 
     def _maketriples(self, accidentvictim):
 
