@@ -1,6 +1,6 @@
 __author__ = '22208_65138'
 
-from rdflib.graph import ConjunctiveGraph, Namespace, rdflib
+from rdflib.graph import Namespace
 
 def predicateCount (graph, namespace, predicate):
     ns = Namespace(namespace)
@@ -103,36 +103,13 @@ def underageDriver(graph, namespace):
     results = graph.query( qry, initNs={'pf':ns})
     return results
 
-def happenedDuring(graph, namespace):
-    ns = Namespace(namespace)
-    results = graph.query("""
-                SELECT ?roadaccident ?happenedDuring
-                WHERE{
-                ?roadaccident pf:happenedDuring ?happenedDuring.
-                } 
-                    """, \
-                          initNs={'pf':ns})
-    return results
 
-def hasVictimUnderage(graph, namespace):
-    ns = Namespace(namespace)
-
-    results = graph.query("""
-                SELECT ?accidentvictim
-                WHERE{
-                ?accidentvictim pf:hasVictimType <http://ws_22208_65138.com/VictimType/Passenger> .
-                ?accidentvictim pf:hasVictimAge <http://ws_22208_65138.com/VictimAge/Y0-17> .
-                }
-                    """, initNs={'pf': ns})
-
-    return results
-
-def addDayTime(graph, namespace):
+def constructDayTime(graph, namespace):
     ns = Namespace(namespace)
 
     queryAfternoon = """
         CONSTRUCT {
-            ?roadaccident <http://xmlns.com/gah/0.1/DayTime> <http://ws_22208_65138.com/DayTime/afternoon>
+            ?roadaccident pf:DayTime <http://ws_22208_65138.com/DayTime/afternoon>
         }
         WHERE {
             ?roadaccident pf:happenedDuring <http://ws_22208_65138.com/AccTime/T13-17> .
@@ -141,7 +118,7 @@ def addDayTime(graph, namespace):
 
     queryMorning = """
         CONSTRUCT {
-            ?roadaccident <http://xmlns.com/gah/0.1/DayTime> <http://ws_22208_65138.com/DayTime/morning>
+            ?roadaccident pf:DayTime <http://ws_22208_65138.com/DayTime/morning>
         }
         WHERE {
             {
@@ -160,7 +137,7 @@ def addDayTime(graph, namespace):
 
     queryEvening = """
         CONSTRUCT {
-            ?roadaccident <http://xmlns.com/gah/0.1/DayTime> <http://ws_22208_65138.com/DayTime/evening>
+            ?roadaccident pf:DayTime <http://ws_22208_65138.com/DayTime/evening>
         }
         WHERE {
             {
@@ -184,16 +161,16 @@ def addDayTime(graph, namespace):
         graph.add(triple)
 
 
-def addVictimUnderage(graph, namespace):
+def constructUnderagePassenger(graph, namespace):
 
     ns = Namespace(namespace)
     results = graph.query(
     """CONSTRUCT {
-    ?accidentvictim <http://xmlns.com/gah/0.1/UnderagePassenger> <http://ws_22208_65138.com/isUnderagePassenger>
-    }
-    WHERE{
-    ?accidentvictim pf:hasVictimType <http://ws_22208_65138.com/VictimType/Passenger> .
-    ?accidentvictim pf:hasVictimAge <http://ws_22208_65138.com/VictimAge/Y0-17> .
+        ?accidentvictim pf:UnderagePassenger <http://ws_22208_65138.com/isUnderagePassenger>
+        }
+        WHERE{
+        ?accidentvictim pf:hasVictimType <http://ws_22208_65138.com/VictimType/Passenger> .
+        ?accidentvictim pf:hasVictimAge <http://ws_22208_65138.com/VictimAge/Y0-17> .
     }
     """, initNs={'pf': ns})
 
@@ -203,16 +180,28 @@ def addVictimUnderage(graph, namespace):
 
     return results
 
-def UnderagePassengerCount (graph, namespace, predicate):
-    qry = "SELECT  (COUNT(?s) as ?pCount) " \
-            " WHERE {?s <http://xmlns.com/gah/0.1/UnderagePassenger> <http://ws_22208_65138.com/isUnderagePassenger> . } "
-    results = graph.query(qry)
+
+def DayTimeCount (graph, namespace):
+    ns = Namespace(namespace)
+
+    qry = "SELECT  (COUNT(*) as ?pCount) " \
+          " WHERE {?s pf:DayTime ?daytime . } "
+    results = graph.query(qry,initNs={'pf':ns})
     return results
 
-def DayTimeCount (graph):
-    qry = "SELECT  (COUNT(*) as ?pCount) " \
-          " WHERE {?s <http://xmlns.com/gah/0.1/DayTime> ?daytime . } "
-    results = graph.query(qry)
+def UnderagePassengerCount (graph, namespace):
+    ns = Namespace(namespace)
+
+    qry = "SELECT  (COUNT(?s) as ?pCount) " \
+          " WHERE {?s pf:UnderagePassenger <http://ws_22208_65138.com/isUnderagePassenger> . } "
+    results = graph.query(qry,initNs={'pf':ns})
+    return results
+
+def DayTimeResult (graph, namespace):
+    ns = Namespace(namespace)
+    qry = "SELECT ?s ?daytime " \
+          " WHERE {?s pf:DayTime ?daytime . } "
+    results = graph.query(qry,initNs={'pf':ns})
     return results
 
 

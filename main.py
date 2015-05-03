@@ -1,70 +1,15 @@
 __author__ = '22208_65138'
 
-import grafo
 import Accident
 import Victim
-import ExtractGraph
-import inferencerules
-import rdflib
-import converter
 import SPARQLQueries
 
-from rdflib import ConjunctiveGraph, Namespace, Literal
-
-
-#https://docs.python.org/2/tutorial/datastructures.html
-def list(list):
-    #TODO: Format print
-    print(list)
-
-#https://docs.python.org/2/tutorial/datastructures.html#list-comprehensions
-def filter(element, list):
-    return [item for item in list if element in item]
-
-
-def exists(element, list):
-    if any(element in tuple for tuple in list):
-        return True
-    return False
-
-def readTuple():
-    e1 = input('1º Elemento: ')
-    if e1.strip() == "":
-        e1 = None
-    e2 = input('2º Elemento: ')
-    if e2.strip() == "":
-        e2 = None
-    e3 = input('3º Elemento: ')
-    if e3.strip() == "":
-        e3 = None
-    tuple = (e1,e2,e3)
-    return tuple
-
-def listDistinctValues (list):
-    values = []
-    for tuple in list:
-        if not g.CleanUri (tuple[2]) in values:
-            values.append( g.CleanUri (tuple[2]))
-    for st in values:
-        print (st)
-
-
-def listaRegistos (list, tipo, campo):
-#    dados = None;
-    if tipo == 'acidentes':
-        dados = Accident.Accident()
-    elif tipo == 'vitimas':
-        dados = Victim.Victim()
-    key="X"
-    while key.upper() != 'S' and key.upper() != 'N':
-        key = input ("Deseja listar " + str(tipo) + " (S/N)?")
-        if key.upper() == 'S':
-            for c in list:
-                print (dados.Data (g, c[campo]))
-
+from rdflib import ConjunctiveGraph
 
 flag = True
 _graph = ConjunctiveGraph()
+
+#https://docs.python.org/2/tutorial/datastructures.html
 
 def isFileLoaded():
     if len(_graph) == 0:
@@ -78,7 +23,7 @@ while flag:
     print('2 - Dados Gerais') #informação geral sobre os dados
     print('3 - Procurar Acidente/Vitima') # pesquisar dados de determinado acidente
     print('4 - Consultas') #algumas consultas sobre os dados
-    print('5 - Aplicar Inferências')
+    print('5 - Inferências')
     print('X - Terminar')
     n = input('Opção: ')
     if n.strip().upper() == 'X':
@@ -96,7 +41,7 @@ while flag:
                 print('4 - Causas de Acidentes')
                 print('5 - Faixas etárias')
                 print('X - Menu anterior')
-                key = input('Opção')
+                key = input('Opção: ')
                 if key == '1':
                     results = SPARQLQueries.predicateCount (_graph,"http://xmlns.com/gah/0.1/","accidentID")
                     for r in results:
@@ -153,10 +98,10 @@ while flag:
             print('3 - Vitimas envolvidas em acidentes com determinados veiculos')
             print('4 - Condutores menores de idade')
             print('X - Menu anterior')
-            key = input('Opção')
+            key = input('Opção: ')
 
             if key == '1':
-                acc = input ("Introduza o id do acidente")
+                acc = input ("Introduza o id do acidente: ")
                 results = SPARQLQueries.accidentVictimAge(_graph,"http://xmlns.com/gah/0.1/", acc)
                 if len (results.bindings) == 0:
                     print ("Acidente não encontrado")
@@ -172,7 +117,7 @@ while flag:
                     print ("[" + str (i)+ "]: " + r[0])
                     i = i + 1
 
-                acc = input ("Introduza o número correspondente à Causa pretendida:")
+                acc = input ("Introduza o número correspondente à Causa pretendida: ")
                 results = SPARQLQueries.accidentsByType(_graph,"http://xmlns.com/gah/0.1/","hasAccCause", results.bindings[int(acc)-1]["?Descricao"])
                 print ("Existem " + str(len(results.bindings)) + " acidentes")
                 if input ("Deseja listar os acidentes (S/N)?").upper() == "S":
@@ -187,7 +132,7 @@ while flag:
                     print ("[" + str (i)+ "]: " + r[0])
                     i = i + 1
 
-                vit = input ("Introduza o número correspondente ao veiculo pretendido:")
+                vit = input ("Introduza o número correspondente ao veiculo pretendido: ")
                 results = SPARQLQueries.accidentsByType(_graph,"http://xmlns.com/gah/0.1/","hasAccVehicle", results.bindings[int(vit)-1]["?Descricao"])
                 print ("Existem " + str(len(results.bindings)) + " vitimas")
                 if input ("Deseja listar as vitimas (S/N)?").upper() == "S":
@@ -205,30 +150,34 @@ while flag:
                         victID = r[0]
                         vit.Data(_graph,r[0])
     if n.strip() == '5' and isFileLoaded():
-        dayTimeRule = inferencerules.DayTime()
-        underageRule = inferencerules.UnderagePassenger()
         key = 'Z';
         while key.upper() != 'X':
-            print('\n --=== Aplicar Inferências ===--')
+            print('\n --=== Inferências ===--')
             print('1 - Altura do dia em que ocorreu o acidente')
             print('2 - Vitimas menores de idade (passageiros)')
             print('X - Menu anterior')
-            key = input('Opção')
+            key = input('Opção: ')
             if key == '1':
-                SPARQLQueries.addDayTime(_graph,"http://xmlns.com/gah/0.1/")
-                count = SPARQLQueries.DayTimeCount(_graph)
+                result = SPARQLQueries.constructDayTime(_graph,"http://xmlns.com/gah/0.1/")
+                count = SPARQLQueries.DayTimeCount(_graph,"http://xmlns.com/gah/0.1/")
                 for c in count:
                     acc = c[0]
                 print (str(acc) + ' inferências aplicadas!')
-
+                if input ("Deseja listar as inferências aplicadas (S/N)?").upper() == "S":
+                    dayTimeSelect = SPARQLQueries.DayTimeResult(_graph,"http://xmlns.com/gah/0.1/")
+                    for r in dayTimeSelect:
+                        print(str(r[0])[26:] + " DayTime " + str(r[1])[26:])
             elif key == '2':
-                result = SPARQLQueries.addVictimUnderage(_graph,"http://xmlns.com/gah/0.1/")
+                result = SPARQLQueries.constructUnderagePassenger(_graph,"http://xmlns.com/gah/0.1/")
                 for triple in result:
                     _graph.add(triple)
-                count = SPARQLQueries.UnderagePassengerCount(_graph,"http://xmlns.com/gah/0.1/","UnderagePassanger")
+                count = SPARQLQueries.UnderagePassengerCount(_graph,"http://xmlns.com/gah/0.1/")
                 for c in count:
                     acc = c[0]
                 print (str(acc) + ' inferências aplicadas!')
+                if input ("Deseja listar as inferências aplicadas (S/N)?").upper() == "S":
+                    for triple in result:
+                        print(str(triple[0])[26:] + " " + str(triple[1])[25:] + " " + str(triple[2])[26:])
 
 
 
